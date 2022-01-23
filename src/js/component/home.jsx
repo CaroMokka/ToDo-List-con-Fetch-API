@@ -1,26 +1,84 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import ToDoList from "./to-do-list.jsx";
+import Task from "./task.jsx";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
+const AppToDoList = () => {
+	const [taskList, setTaskList] = useState([]);
 
-//create your first component
-const Home = () => {
+	//MIS FUNCIONES PARA LAS TAREAS
+
+	//Funcion que crear tarea
+	const taskNew = data => {
+		setTaskList([data, ...taskList]);
+	};
+	//Funcion que elimina tarea
+	const deleteTask = id => {
+		//VARIABLE
+		const filterlist = taskList.filter((e, key) => key !== id);
+		setTaskList(filterlist);
+		console.log(id);
+	};
+	//Funcion que actualiza tarea
+	/* const upgradeTask = (id, task) => {
+		//VARIABLE
+		const upgradeList = taskList.map((e, key) => {
+			if (key === id) {
+				e = task;
+			}
+			return e;
+		});
+
+		setTaskList(upgradeList);
+	}; */
+	// getTareas me trae las tareas de mi api fake -----> GET
+	const getTareas = async () => {
+		const res = await fetch(
+			`https://assets.breatheco.de/apis/fake/todos/user/carolaaraya`
+		);
+		const data = await res.json();
+		console.log(data);
+		setTaskList(data);
+	};
+
+	useEffect(() => {
+		getTareas();
+	}, []);
+	//fetch PUT aqui va -----> PUT
+	const setTareas = async () => {
+		const res = await fetch(
+			`https://assets.breatheco.de/apis/fake/todos/user/carolaaraya`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(taskList)
+			}
+		);
+		const data = await res.json();
+		console.log(data);
+	};
+	//FETCH METHOD POST, PAEA AGREGAR UN USER NUEVO
+	const addUser = async () => {};
+
 	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
+		<div className="app">
+			<ToDoList taskNew={taskNew} setTareas={setTareas} />
+			<div>
+				{/*AQUI MAPEO EL ARRAY QUE ESTA ARRIBA DECLARADO, EN LA VARIABLE DE ESTADO , Y QUE ME PINTA LAS TAREAS*/}
+				{taskList.map((task, key) => {
+					if (task.done == false) {
+						return (
+							<Task
+								key={key}
+								task={task}
+								deleteTask={deleteTask}
+								id={key}
+							/>
+						);
+					}
+				})}
+			</div>
 		</div>
 	);
 };
 
-export default Home;
+export default AppToDoList;
